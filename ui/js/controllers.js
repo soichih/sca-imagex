@@ -63,6 +63,8 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, $timeout) {
                 access_token: access_token,
                 src: appconf.url.data+$scope.path+"/main_tiles"
             });
+        }).catch(function(data) {
+            toaster.error('Failed to authorize your access', data.statusText);
         });
     }
 }]);
