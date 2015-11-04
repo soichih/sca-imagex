@@ -17,7 +17,7 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 
 //mine
-var config = require('./config/config');
+var config = require('./config');
 var logger = new winston.Logger(config.logger.winston);
 
 var app = express();
@@ -59,8 +59,8 @@ app.get('/health', function(req, res) { res.json({status: 'ok'}); });
 //error handling
 app.use(expressWinston.errorLogger(config.logger.winston));
 app.use(function(err, req, res, next) {
-    logger.info(err);
-    logger.info(err.stack);
+    logger.error(err);
+    logger.error(err.stack);
     res.status(err.status || 500);
     res.json({message: err.message, /*stack: err.stack*/}); //let's hide callstack for now
 });

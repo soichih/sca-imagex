@@ -2,18 +2,23 @@
 
 angular.module('app.config', [])
 .constant('appconf', {
-    version: '0.0.1',
     title: 'ImageX Sample',
-    api: {
-        imagex: 'https://soichi7.ppa.iu.edu/api/imagex',
-        auth: 'https://soichi7.ppa.iu.edu/api/auth',
-    },
-    url: {
-        login: 'https://soichi7.ppa.iu.edu/auth#/login', //?redirect=<url to redirect back>
-        
-        //I want to use https but I don't want to reconfigure apache / nginx, etc..
-        data: 'https://portal-dev1.odi.iu.edu/ds/imagex', 
-    },
+    api: '../api/imagex',
+
+    data_urls: [
+        '//portal-dev1.odi.iu.edu/ds/imagex', 
+    ],
+
+    profile_api: '../api/profile',
+    profile_url: '../profile',
+
+    //shared servive api and ui urls (for menus and stuff)
+    shared_api: '../api/shared',
+    shared_url: '../shared',
+
+    auth_api: '../api/auth',
+    auth_url: '../auth',
+
     jwt_id: 'jwt'
 });
 

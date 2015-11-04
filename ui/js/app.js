@@ -2,10 +2,12 @@
 
 var app = angular.module('app', [
     'app.config',
-    'ngSanitize',
+    'ngRoute',
     'ngCookies',
     'toaster',
-    'angular-jwt'
+    'angular-loading-bar',
+    'angular-jwt',
+    'sca-shared',
 ]);
 
 /*
@@ -14,6 +16,10 @@ app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
 }]);
 */
+//show loading bar at the top
+app.config(['cfpLoadingBarProvider', '$logProvider', function(cfpLoadingBarProvider, $logProvider) {
+    cfpLoadingBarProvider.includeSpinner = false;
+}]);
 
 app.factory('jwt', function(jwtHelper, appconf) {
     var jwt = localStorage.getItem(appconf.jwt_id);
@@ -24,10 +30,41 @@ app.factory('jwt', function(jwtHelper, appconf) {
     return jwtHelper.decodeToken(jwt);
 });
 
+//configure route
+app.config(['$routeProvider', 'appconf', function($routeProvider, appconf) {
+    $routeProvider.
+    when('/', {
+        templateUrl: 't/about.html',
+        controller: 'AboutController',
+    })
+    //assume it's business request
+    .otherwise({
+        templateUrl: 't/viewer.html',
+        controller: 'ViewerController',
+        requiresLogin: true,
+    });
+    //console.dir($routeProvider);
+}]).run(['$rootScope', '$location', 'toaster', 'jwtHelper', 'appconf', 'scaMessage',
+function($rootScope, $location, toaster, jwtHelper, appconf, scaMessage) {
+    $rootScope.$on("$routeChangeStart", function(event, next, current) {
+        //console.log("route changed from "+current+" to :"+next);
+        //redirect to /login if user hasn't authenticated yet
+        if(next.requiresLogin) {
+            var jwt = localStorage.getItem(appconf.jwt_id);
+            if(jwt == null || jwtHelper.isTokenExpired(jwt)) {
+                scaMessage.info("Please login first!");
+                sessionStorage.setItem('auth_redirect', window.location.toString());
+                window.location = appconf.auth_url;
+                event.preventDefault();
+            }
+        }
+    });
+}]);
+
 app.config(['appconf', '$httpProvider', 'jwtInterceptorProvider', 
 function(appconf, $httpProvider, jwtInterceptorProvider) {
     //configure httpProvider to send jwt unless skipAuthorization is set in config (not tested yet..)
-    jwtInterceptorProvider.tokenGetter = function(jwtHelper, config, $http) {
+    jwtInterceptorProvider.tokenGetter = function(jwtHelper, config, $http, scaMessage) {
         //don't send jwt for template requests
         if (config.url.substr(config.url.length - 5) == '.html') {
             return null;
@@ -39,14 +76,15 @@ function(appconf, $httpProvider, jwtInterceptorProvider) {
         var ttl = expdate - Date.now();
         if(ttl < 0) {
             //expired already.. redirect to login form
-            console.log("token expired.");
-            document.location = appconf.url.login+"?redirect="+encodeURIComponent(document.location);
+            scaMessage.info("Your token has expired. Please re-sign!");
+            sessionStorage.setItem("auth_redirect", document.location.toString());
+            document.location = appconf.auth_url;
         } else if(ttl < 3600*1000) {
             //jwt expring in less than an hour! refresh!
             //console.dir(config);
             //console.log("jwt expiring in an hour.. refreshing first");
             return $http({
-                url: appconf.authapi+'/refresh',
+                url: appconf.auth_api+'/refresh',
                 skipAuthorization: true,  //prevent infinite recursion
                 headers: {'Authorization': 'Bearer '+jwt},
                 method: 'POST'
@@ -61,5 +99,44 @@ function(appconf, $httpProvider, jwtInterceptorProvider) {
     }
     $httpProvider.interceptors.push('jwtInterceptor');
 }]);
+
+//just a service to load all users from auth service
+app.factory('serverconf', ['appconf', '$http', function(appconf, $http) {
+    return $http.get(appconf.api+'/config')
+    .then(function(res) {
+        return res.data;
+    });
+}]);
+
+app.factory('menu', ['appconf', '$http', 'jwtHelper', '$sce', function(appconf, $http, jwtHelper, $sce) {
+    var menu = {
+        /*
+        header: {
+            label: appconf.title,
+            icon: $sce.trustAsHtml("<img src=\""+appconf.icon_url+"\">"),
+            url: "#/",
+        }
+        */
+    };
+
+    return $http.get(appconf.shared_api+'/menu/top').then(function(res) {
+        menu.top = res.data;
+        //then load user profile (if we have jwt)
+        var jwt = localStorage.getItem(appconf.jwt_id);
+        if(!jwt)  return menu;
+        var user = jwtHelper.decodeToken(jwt);//jwt could be invalid
+        return $http.get(appconf.profile_api+'/public/'+user.sub);
+    }, function(err) {
+        console.log("failed to load menu");
+    }).then(function(res) {
+        //TODO - this function is called with either valid profile, or just menu if jwt is not provided... only do following if res is profile
+        //if(res.status != 200) return $q.reject("Failed to load profile");
+        menu._profile = res.data;
+        return menu;
+    }, function(err) {
+        console.log("couldn't load profile");
+    });
+}]);
+
 
 

@@ -2,5 +2,6 @@
 
 pm2 delete imagex
 pm2 start imagex.js --watch --ignore-watch="\.log$"
+pm2 save
+#pm2 logs imagex
 
-pm2 logs imagex
