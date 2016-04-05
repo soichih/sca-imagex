@@ -11,7 +11,7 @@
     <!--<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="css/bootstrap.yeti.css">
     <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
-    <!--<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700">-->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700">
     <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.min.css">
     <link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.min.css">
     <link rel="stylesheet" href="bower_components/angularjs-toaster/toaster.min.css">
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <sca-menubar header="menu.header" menu="menu.top" active="'imagex'" profile="menu._profile"></sca-menubar>
+    <sca-menubar header="menu.header" menu="menu.top" active="'imagex'" profile="menu._profile" user="menu.user"></sca-menubar>
     <toaster-container toaster-options="{'position-class': 'toast-bottom-right'}"></toaster-container>
     <ng-view></ng-view>
 
@@ -41,7 +41,11 @@
     <script src="bower_components/tileviewer/jquery.tileviewer.js"></script>
 
     <script src="config.js"></script>
-    <script src="../shared/shared.js"></script> <!-- TODO make this configurable? don't forget the shared/css/style.css -->
+
+    <!-- TODO make this configurable? don't forget the shared/css/style.css -->
+    <script src="../shared/config.js"></script> 
+    <script src="../shared/dist/shared.js"></script> 
+
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
 </body>

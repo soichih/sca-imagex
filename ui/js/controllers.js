@@ -6,18 +6,18 @@
  * to add it to app.js's module list
  * */
 
-app.controller('HeaderController', ['$scope', 'appconf', 'toaster', '$http', 'jwtHelper', 'serverconf', 'menu',
-function($scope, appconf, toaster, $http, jwtHelper, serverconf, menu) {
+app.controller('HeaderController', ['$scope', 'appconf', 'toaster', '$http', 'jwtHelper', 'menu',
+function($scope, appconf, toaster, $http, jwtHelper, menu) {
     $scope.title = appconf.title;
-    serverconf.then(function(_c) { $scope.serverconf = _c; });
-    menu.then(function(_menu) { $scope.menu = _menu; });
+    //serverconf.then(function(_c) { $scope.serverconf = _c; });
+    $scope.menu = menu;
 }]);
 
-app.controller('AboutController', ['$scope', 'appconf', 'toaster', '$http', 'jwtHelper', 'serverconf', 'menu', 'scaMessage',
-function($scope, appconf, toaster, $http, jwtHelper, serverconf, menu, scaMessage) {
+app.controller('AboutController', ['$scope', 'appconf', 'toaster', '$http', 'jwtHelper', 'scaMessage',
+function($scope, appconf, toaster, $http, jwtHelper, scaMessage) {
     $scope.title = appconf.title;
-    serverconf.then(function(_c) { $scope.serverconf = _c; });
-    menu.then(function(_menu) { $scope.menu = _menu; });
+    //serverconf.then(function(_c) { $scope.serverconf = _c; });
+    //menu.then(function(_menu) { $scope.menu = _menu; });
     scaMessage.show(toaster);
 }]);
 
