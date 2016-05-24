@@ -37,12 +37,19 @@ app.config(['$routeProvider', 'appconf', function($routeProvider, appconf) {
         templateUrl: 't/about.html',
         controller: 'AboutController',
     })
+    .otherwise({
+        template: '<div id="viewer"></div>',
+        controller: 'SDViewerController',
+        requiresLogin: true,
+    });
+    /*
     //assume it's business request
     .otherwise({
-        templateUrl: 't/viewer.html',
+        template: '<div id="viewer"></div>',
         controller: 'ViewerController',
         requiresLogin: true,
     });
+    */
     //console.dir($routeProvider);
 }]).run(['$rootScope', '$location', 'toaster', 'jwtHelper', 'appconf', 'scaMessage',
 function($rootScope, $location, toaster, jwtHelper, appconf, scaMessage) {
