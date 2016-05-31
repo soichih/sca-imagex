@@ -10,3 +10,7 @@ body {
   top: 45px;
   bottom: 0;
 }
+
+.openseadragon-canvas canvas {
+    background: black !important;
+}
