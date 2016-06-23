@@ -37,6 +37,10 @@ app.config(['$routeProvider', 'appconf', function($routeProvider, appconf) {
         templateUrl: 't/about.html',
         controller: 'AboutController',
     })
+    .when('/m51', {
+        template: '<div id="viewer"></div>',
+        controller: 'M51Controller',
+    })
     .otherwise({
         template: '<div id="viewer"></div>',
         controller: 'SDViewerController',

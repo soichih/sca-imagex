@@ -9,8 +9,5 @@ body {
   position: absolute;
   top: 45px;
   bottom: 0;
-}
-
-.openseadragon-canvas canvas {
-    background: black !important;
+  background-color: #222;
 }
