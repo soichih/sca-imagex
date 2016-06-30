@@ -1,6 +1,8 @@
 **/barn
 ui/bower_components
 node_modules
-config
+api/config/index.js
+api/config/imagex.pub
+api/config/imagex.key
 nohup*.out
 **/*.log

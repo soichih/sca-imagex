@@ -1,0 +1,34 @@
+'use strict';
+
+var fs = require('fs');
+var winston = require('winston');
+
+exports.imagex = {
+    //private key used to sign token issued by imagex (public key needs to be distributed to all data service instances)
+    private_key: fs.readFileSync(__dirname+'/imagex.key'),
+    access_token_ttl: 3600*1000, 
+    
+    //option for jwt.sign
+    sign_opt: {algorithm: 'RS256'},
+};
+    
+exports.express = {
+    port: 12020,
+    //key used to validate sca authentication token
+    pubkey: fs.readFileSync('/home/hayashis/git/auth/api/config/auth.pub'),
+};
+
+exports.logger = {
+    winston: {
+        transports: [
+            //display all logs to console
+            new winston.transports.Console({
+                timestamp: function() {
+                    return Date.now(); //show time in unix timestamp
+                },
+                level: 'debug',
+                colorize: true
+            }),
+        ]
+    },
+}

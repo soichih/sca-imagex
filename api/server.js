@@ -11,8 +11,6 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var exjwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
-//var logger = require('morgan');
-//var request = require('request');
 var winston = require('winston');
 var expressWinston = require('express-winston');
 
@@ -21,13 +19,14 @@ var config = require('./config');
 var logger = new winston.Logger(config.logger.winston);
 
 var app = express();
+//app.use(cors());
 app.use(bodyParser.json()); //parse application/json
-app.use(bodyParser.urlencoded({ extended: false})); //parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended: false})); //parse application/x-www-form-urlencoded
 app.use(expressWinston.logger(config.logger.winston));
 app.use(cookieParser()); //not used?
 
 //authorize data access to imageid 
-app.post('/authorize', exjwt({secret: config.express.jwt.public_key}), function(req, res) {
+app.post('/authorize', exjwt({secret: config.express.pubkey}), function(req, res) {
     var path = req.body.path;
     if(path) {
         //TODO - clean path?
@@ -59,27 +58,29 @@ app.get('/health', function(req, res) { res.json({status: 'ok'}); });
 //error handling
 app.use(expressWinston.errorLogger(config.logger.winston));
 app.use(function(err, req, res, next) {
-    logger.error(err);
-    logger.error(err.stack);
+    if(typeof err == "string") err = {message: err};
+    if(err.stack) {
+        logger.info(err.stack);
+        err.stack = "hidden"; //let's hide callstack
+    }
+    logger.info(err);
     res.status(err.status || 500);
-    res.json({message: err.message, /*stack: err.stack*/}); //let's hide callstack for now
+    res.json(err);
 });
 
 process.on('uncaughtException', function (err) {
-    //TODO report this to somewhere!
     logger.error((new Date).toUTCString() + ' uncaughtException:', err.message)
     logger.error(err.stack)
-    //process.exit(1); //some people think we should do this.. but I am not so sure..
 })
 
 exports.app = app;
-exports.start = function() {
-    //models.sequelize.sync(/*{force: true}*/).then(function() {
-        var port = process.env.PORT || config.express.port || '8080';
-        var host = process.env.HOST || config.express.host || 'localhost';
-        app.listen(port, host, function() {
-            console.log("Express server listening on port %d in %s mode", port, app.settings.env);
-        });
-    //});
+exports.start = function(cb) {
+    var port = process.env.PORT || config.express.port || '8080';
+    var host = process.env.HOST || config.express.host || 'localhost';
+    app.listen(port, host, function(err) {
+        if(err) return cb(err); 
+        console.log("Express server listening on port %s:%d", host, port);
+        cb(null);
+    });
 }
 

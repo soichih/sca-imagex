@@ -37,15 +37,15 @@ app.config(['$routeProvider', 'appconf', function($routeProvider, appconf) {
         templateUrl: 't/about.html',
         controller: 'AboutController',
     })
-    .when('/m51', {
-        template: '<div id="viewer"></div>',
-        controller: 'M51Controller',
-    })
-    .otherwise({
+    .when('/exobj/:id', {
         template: '<div id="viewer"></div>',
         controller: 'SDViewerController',
         requiresLogin: true,
-    });
+    })
+    .when('/:collection/:mode', {
+        template: '<div id="viewer"></div>',
+        controller: 'CollectionController',
+    })
     /*
     //assume it's business request
     .otherwise({
@@ -54,7 +54,7 @@ app.config(['$routeProvider', 'appconf', function($routeProvider, appconf) {
         requiresLogin: true,
     });
     */
-    //console.dir($routeProvider);
+    ;
 }]).run(['$rootScope', '$location', 'toaster', 'jwtHelper', 'appconf', 'scaMessage',
 function($rootScope, $location, toaster, jwtHelper, appconf, scaMessage) {
     $rootScope.$on("$routeChangeStart", function(event, next, current) {

@@ -62,12 +62,13 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
     }
 }]);
 
-app.controller('M51Controller', ['$scope', 'appconf', 'toaster', '$http', '$cookies', '$location', 'jwt', 'scaMessage',
-function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) {
+app.controller('CollectionController', ['$scope', 'appconf', 'toaster', '$http', '$cookies', '$location', 'jwt', 'scaMessage', '$routeParams',
+function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage, $routeParams) {
     scaMessage.show(toaster);
     $scope.title = "M51 collection";
-    $scope.path = "/exobj/m51";
-
+    $scope.mode = $routeParams.mode; 
+    $scope.collection = $routeParams.collection; 
+    $scope.path = "/exobj/"+$scope.collection;
     
     //authorize and initialize seadragon
     $http({
@@ -76,7 +77,6 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
         data: {path: $scope.path}
     }).then(function(res) {
         var jwt = res.data.access_token;
-
 
         /*
         var images = {};
@@ -112,7 +112,7 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
             console.dir(images);
         */
 
-        var viewer = OpenSeadragon({
+        var options = {
             id: "viewer",
 
             //debugMode: true,
@@ -136,16 +136,23 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
 
             //needed by plugins to access getImageData()
             crossOriginPolicy: 'Anonymous',
+        }
 
-            sequenceMode: true,
-            showReferenceStrip: true,
-            /*
-            collectionMode:       true,
-            collectionRows:       1, 
-            collectionTileSize:   1024,
-            collectionTileMargin: 256,
-            */
-            tileSources: [
+        switch($scope.mode) {
+        case "sequence": 
+            options.sequenceMode = true;
+            options.showReferenceStrip = true;
+            break;
+        case "collection":
+            options.collectionMode = true;
+            //options.collectionRows = 1;
+            options.collectionTileSize = 1024;
+            options.collectionTileMargin = 256;
+            break;
+        }
+        switch($scope.collection) {
+        case "m51":
+            options.tileSources = [
                 appconf.data_urls+$scope.path+"/dzi/20130512T003050.3_m51_g_odi_g.4556.fits.fz.png.dzi?at="+jwt,
                 appconf.data_urls+$scope.path+"/dzi/20130512T003050.4_m51_g_odi_g.4556.fits.fz.png.dzi?at="+jwt,
                 appconf.data_urls+$scope.path+"/dzi/20130512T003050.5_m51_g_odi_g.4556.fits.fz.png.dzi?at="+jwt,
@@ -166,9 +173,25 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
                 appconf.data_urls+$scope.path+"/dzi/m51_uls.odi_g.4253.weight.fits.fz.png.dzi?at="+jwt,
                 appconf.data_urls+$scope.path+"/dzi/m51_uls.odi_r.4253.fits.fz.png.dzi?at="+jwt,
                 appconf.data_urls+$scope.path+"/dzi/m51_uls.odi_r.4253.weight.fits.fz.png.dzi?at="+jwt,
-            ],
-        });
+            ];
+            break;
+        case "m1":
+            options.tileSources = [
+                appconf.data_urls+$scope.path+"/dzi/averagestacktest.3824.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/averagestacktest.3824.weight.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1gswarptest.3829.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1gswarptest.3829.weight.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1ingesttesto3.3728.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1ingesttesto3.3728.weight.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1u.3726.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/m1u.3726.weight.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/medianstacktest.3823.fits.fz.png.dzi?at="+jwt,
+                appconf.data_urls+$scope.path+"/dzi/medianstacktest.3823.weight.fits.fz.png.dzi?at="+jwt,
+            ];
+            break;
+        }
 
+        var viewer = OpenSeadragon(options);
         viewer.addHandler('page', function(event) {
             var page = event.page;
             console.log(page);
@@ -399,7 +422,8 @@ function($scope, appconf, toaster, $http, $cookies, $location, jwt, scaMessage) 
         
 
     }, function(err) {
-        toaster.error('Failed to authorize your access', data.statusText);
+        console.error(err);
+        toaster.error('Failed to authorize your access');
     });
 }]);
 

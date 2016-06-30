@@ -1,7 +1,6 @@
 {
-  "name": "trident-image-explorer",
-  "version": "0.0.0",
-  "private": true,
+  "name": "sca-imagex",
+  "version": "0.0.1",
   "scripts": {
     "start": "DEBUG=auth:* node ./bin/www",
     "test": "DEBUG=auth:* mocha"
@@ -26,11 +25,5 @@
     "serve-favicon": "~2.2.0",
     "underscore": "^1.8.3",
     "winston": "^1.0.2"
-  },
-  "devDependencies": {
-    "grunt-contrib-less": "^1.0.1",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt": "^0.4.5",
-    "supertest": "~0.15.0"
   }
 }
